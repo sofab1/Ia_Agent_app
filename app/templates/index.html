@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sofabi AI Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chat-container {
+            height: calc(100vh - 200px);
+        }
+        .sidebar {
+            transition: all 0.3s;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                left: -100%;
+                z-index: 100;
+            }
+            .sidebar.open {
+                left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Mobile Menu Button -->
+    <button id="menu-toggle" class="md:hidden fixed top-4 left-4 z-50 bg-blue-600 text-white p-2 rounded-lg">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar w-64 bg-gray-800 text-white p-4">
+            <div class="flex items-center mb-8">
+                <i class="fas fa-robot text-2xl mr-2 text-blue-400"></i>
+                <h1 class="text-xl font-bold">Sofabi Admin</h1>
+            </div>
+            
+            <nav>
+                <ul>
+                    <li class="mb-2">
+                        <a href="#dashboard" class="flex items-center p-2 rounded hover:bg-gray-700">
+                            <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#users" class="flex items-center p-2 rounded hover:bg-gray-700">
+                            <i class="fas fa-users mr-2"></i> Users
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="./chat" class="flex items-center p-2 rounded hover:bg-gray-700">
+                            <i class="fas fa-question-circle mr-2"></i> Questions
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#responses" class="flex items-center p-2 rounded hover:bg-gray-700">
+                            <i class="fas fa-comment-alt mr-2"></i> Responses
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#errors" class="flex items-center p-2 rounded hover:bg-gray-700">
+                            <i class="fas fa-exclamation-triangle mr-2"></i> Errors
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#analytics" class="flex items-center p-2 rounded hover:bg-gray-700">
+                            <i class="fas fa-chart-bar mr-2"></i> Analytics
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#settings" class="flex items-center p-2 rounded hover:bg-gray-700">
+                            <i class="fas fa-cog mr-2"></i> Settings
+                        </a>
+                    </li>
+                    <li class="mb-2 mt-8">
+                        <a href="/auth/logout" class="flex items-center p-2 rounded bg-red-600 hover:bg-red-700 text-white">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <!-- Header -->
+            <header class="bg-white shadow-sm p-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-800" id="page-title">Dashboard</h2>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <input type="text" placeholder="Search..." class="pl-8 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="https://via.placeholder.com/40" alt="Profile" class="w-8 h-8 rounded-full">
+                            <span class="ml-2 text-sm font-medium">Admin</span>
+                            <a href="/auth/logout" class="ml-4 text-red-500 hover:text-red-700">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <main class="p-4">
+                <!-- Dashboard Section -->
+                <section id="dashboard-content" class="content-section">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <div class="flex justify-between">
+                                <div>
+                                    <p class="text-gray-500">Total Users</p>
+                                    <h3 class="text-2xl font-bold">1,248</h3>
+                                </div>
+                                <div class="bg-blue-100 p-3 rounded-full">
+                                    <i class="fas fa-users text-blue-600"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-green-500 mt-2"><i class="fas fa-arrow-up"></i> 12% from last month</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <div class="flex justify-between">
+                                <div>
+                                    <p class="text-gray-500">Questions Today</p>
+                                    <h3 class="text-2xl font-bold">86</h3>
+                                </div>
+                                <div class="bg-green-100 p-3 rounded-full">
+                                    <i class="fas fa-question-circle text-green-600"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-green-500 mt-2"><i class="fas fa-arrow-up"></i> 5% from yesterday</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <div class="flex justify-between">
+                                <div>
+                                    <p class="text-gray-500">Response Rate</p>
+                                    <h3 class="text-2xl font-bold">94%</h3>
+                                </div>
+                                <div class="bg-purple-100 p-3 rounded-full">
+                                    <i class="fas fa-comment-alt text-purple-600"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-red-500 mt-2"><i class="fas fa-arrow-down"></i> 2% from last week</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <div class="flex justify-between">
+                                <div>
+                                    <p class="text-gray-500">Error Rate</p>
+                                    <h3 class="text-2xl font-bold">6%</h3>
+                                </div>
+                                <div class="bg-red-100 p-3 rounded-full">
+                                    <i class="fas fa-exclamation-triangle text-red-600"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-green-500 mt-2"><i class="fas fa-arrow-down"></i> 1% from last week</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded-lg shadow lg:col-span-2">
+                            <h3 class="font-semibold mb-4">Questions & Responses (Last 30 Days)</h3>
+                            <canvas id="questionsChart" height="250"></canvas>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h3 class="font-semibold mb-4">Question Categories</h3>
+                            <canvas id="categoriesChart" height="250"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <h3 class="font-semibold mb-4">Recent Questions</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">John Doe</td>
+                                        <td class="px-6 py-4">How do I reset my password?</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Answered</span></td>
+                                        <td class="px-6 py-4">10 min ago</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">Jane Smith</td>
+                                        <td class="px-6 py-4">What's the return policy?</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Answered</span></td>
+                                        <td class="px-6 py-4">25 min ago</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">Bob Johnson</td>
+                                        <td class="px-6 py-4">Technical issue with login</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Pending</span></td>
+                                        <td class="px-6 py-4">1 hour ago</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">Alice Brown</td>
+                                        <td class="px-6 py-4">Feature request</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">In Review</span></td>
+                                        <td class="px-6 py-4">2 hours ago</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">Charlie Wilson</td>
+                                        <td class="px-6 py-4">Error when submitting form</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Error</span></td>
+                                        <td class="px-6 py-4">3 hours ago</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Users Section -->
+                <section id="users-content" class="content-section hidden">
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-semibold">User Management</h3>
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                <i class="fas fa-plus mr-2"></i> Add User
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Questions</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Active</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">John Doe</td>
+                                        <td class="px-6 py-4">john@example.com</td>
+                                        <td class="px-6 py-4">Customer</td>
+                                        <td class="px-6 py-4">12</td>
+                                        <td class="px-6 py-4">Today</td>
+                                        <td class="px-6 py-4">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit"></i></button>
+                                            <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">Jane Smith</td>
+                                        <td class="px-6 py-4">jane@example.com</td>
+                                        <td class="px-6 py-4">Premium User</td>
+                                        <td class="px-6 py-4">8</td>
+                                        <td class="px-6 py-4">Yesterday</td>
+                                        <td class="px-6 py-4">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit"></i></button>
+                                            <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">Admin User</td>
+                                        <td class="px-6 py-4">admin@example.com</td>
+                                        <td class="px-6 py-4">Administrator</td>
+                                        <td class="px-6 py-4">-</td>
+                                        <td class="px-6 py-4">Today</td>
+                                        <td class="px-6 py-4">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit"></i></button>
+                                            <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Questions Section -->
+                <section id="questions-content" class="content-section hidden">
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-semibold">Question Management</h3>
+                            <div class="flex space-x-2">
+                                <select class="border rounded-lg px-3 py-2">
+                                    <option>Filter by Status</option>
+                                    <option>Answered</option>
+                                    <option>Pending</option>
+                                    <option>Error</option>
+                                </select>
+                                <input type="text" placeholder="Search questions..." class="border rounded-lg px-3 py-2">
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">John Doe</td>
+                                        <td class="px-6 py-4">How do I reset my password?</td>
+                                        <td class="px-6 py-4">Account</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Answered</span></td>
+                                        <td class="px-6 py-4">2023-06-15</td>
+                                        <td class="px-6 py-4">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-eye"></i></button>
+                                            <button class="text-green-600 hover:text-green-800 mr-2"><i class="fas fa-reply"></i></button>
+                                            <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">Jane Smith</td>
+                                        <td class="px-6 py-4">What's the return policy?</td>
+                                        <td class="px-6 py-4">Products</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Answered</span></td>
+                                        <td class="px-6 py-4">2023-06-14</td>
+                                        <td class="px-6 py-4">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-eye"></i></button>
+                                            <button class="text-green-600 hover:text-green-800 mr-2"><i class="fas fa-reply"></i></button>
+                                            <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">Bob Johnson</td>
+                                        <td class="px-6 py-4">Technical issue with login</td>
+                                        <td class="px-6 py-4">Technical</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Pending</span></td>
+                                        <td class="px-6 py-4">2023-06-14</td>
+                                        <td class="px-6 py-4">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-eye"></i></button>
+                                            <button class="text-green-600 hover:text-green-800 mr-2"><i class="fas fa-reply"></i></button>
+                                            <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Responses Section -->
+                <section id="responses-content" class="content-section hidden">
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <h3 class="font-semibold mb-4">Response Management</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Response</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Accuracy</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Rating</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4">How do I reset my password?</td>
+                                        <td class="px-6 py-4">You can reset your password by...</td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center">
+                                                <div class="w-16 bg-gray-200 rounded-full h-2.5">
+                                                    <div class="bg-green-600 h-2.5 rounded-full" style="width: 95%"></div>
+                                                </div>
+                                                <span class="ml-2 text-sm">95%</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex text-yellow-400">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star-half-alt"></i>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">2023-06-15</td>
+                                        <td class="px-6 py-4">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit"></i></button>
+                                            <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4">What's the return policy?</td>
+                                        <td class="px-6 py-4">Our return policy allows...</td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center">
+                                                <div class="w-16 bg-gray-200 rounded-full h-2.5">
+                                                    <div class="bg-green-600 h-2.5 rounded-full" style="width: 88%"></div>
+                                                </div>
+                                                <span class="ml-2 text-sm">88%</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex text-yellow-400">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="far fa-star"></i>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">2023-06-14</td>
+                                        <td class="px-6 py-4">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit"></i></button>
+                                            <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Errors Section -->
+                <section id="errors-content" class="content-section hidden">
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <h3 class="font-semibold mb-4">Error Logs</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Error Code</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">500</td>
+                                        <td class="px-6 py-4">Internal server error when processing question</td>
+                                        <td class="px-6 py-4">John Doe</td>
+                                        <td class="px-6 py-4">2023-06-15 14:32</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Unresolved</span></td>
+                                        <td class="px-6 py-4">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-info-circle"></i></button>
+                                            <button class="text-green-600 hover:text-green-800"><i class="fas fa-check"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">404</td>
+                                        <td class="px-6 py-4">Knowledge base article not found</td>
+                                        <td class="px-6 py-4">Jane Smith</td>
+                                        <td class="px-6 py-4">2023-06-15 11:15</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Resolved</span></td>
+                                        <td class="px-6 py-4">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-info-circle"></i></button>
+                                            <button class="text-green-600 hover:text-green-800"><i class="fas fa-check"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">400</td>
+                                        <td class="px-6 py-4">Invalid input format</td>
+                                        <td class="px-6 py-4">Bob Johnson</td>
+                                        <td class="px-6 py-4">2023-06-14 16:45</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Resolved</span></td>
+                                        <td class="px-6 py-4">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-info-circle"></i></button>
+                                            <button class="text-green-600 hover:text-green-800"><i class="fas fa-check"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Analytics Section -->
+                <section id="analytics-content" class="content-section hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h3 class="font-semibold mb-4">Questions Over Time</h3>
+                            <canvas id="questionsOverTimeChart" height="250"></canvas>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h3 class="font-semibold mb-4">Response Times</h3>
+                            <canvas id="responseTimesChart" height="250"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h3 class="font-semibold mb-4">User Satisfaction</h3>
+                            <canvas id="satisfactionChart" height="250"></canvas>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow lg:col-span-2">
+                            <h3 class="font-semibold mb-4">Top Questions</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Frequency</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg. Rating</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-6 py-4">How do I reset my password?</td>
+                                            <td class="px-6 py-4">142</td>
+                                            <td class="px-6 py-4">Account</td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex text-yellow-400">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4">What's the return policy?</td>
+                                            <td class="px-6 py-4">98</td>
+                                            <td class="px-6 py-4">Products</td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex text-yellow-400">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="far fa-star"></i>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4">How do I contact support?</td>
+                                            <td class="px-6 py-4">76</td>
+                                            <td class="px-6 py-4">Support</td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex text-yellow-400">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                    <i class="far fa-star"></i>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings-content" class="content-section hidden">
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <h3 class="font-semibold mb-6">Bot Settings</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div>
+                                <h4 class="font-medium mb-4 text-gray-700">General Settings</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Bot Name</label>
+                                        <input type="text" value="Sofabi Bot" class="w-full border rounded-lg px-3 py-2">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Welcome Message</label>
+                                        <textarea class="w-full border rounded-lg px-3 py-2" rows="3">Hello! How can I help you today?</textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Default Response</label>
+                                        <textarea class="w-full border rounded-lg px-3 py-2" rows="3">I'm sorry, I don't understand that question. Could you please rephrase it?</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="font-medium mb-4 text-gray-700">Performance Settings</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Response Time Threshold (ms)</label>
+                                        <input type="number" value="5000" class="w-full border rounded-lg px-3 py-2">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Confidence Threshold</label>
+                                        <input type="number" value="0.7" step="0.1" min="0" max="1" class="w-full border rounded-lg px-3 py-2">
+                                        <p class="text-xs text-gray-500 mt-1">Minimum confidence score to provide automated response</p>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="enableFallback" class="mr-2" checked>
+                                        <label for="enableFallback" class="text-sm font-medium text-gray-700">Enable Human Fallback</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-8">
+                            <h4 class="font-medium mb-4 text-gray-700">Knowledge Base Integration</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Knowledge Base URL</label>
+                                    <input type="url" value="https://api.example.com/knowledge" class="w-full border rounded-lg px-3 py-2">
+                                </div>
+                                <div>
+                                    <

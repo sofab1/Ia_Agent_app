@@ -1,0 +1,1 @@
+# Ce fichier est intentionnellement vide pour faire de core un package Python
