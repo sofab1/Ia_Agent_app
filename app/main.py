@@ -7,6 +7,7 @@ from app.middleware import DebugMiddleware
 import logging
 import os
 from pathlib import Path
+from datetime import datetime
 
 # Obtenir le chemin absolu du répertoire racine du projet
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -59,11 +60,12 @@ app.include_router(web_router)
 @app.exception_handler(404)
 async def custom_404_handler(request: Request, exc: HTTPException):
     """Gestionnaire d'erreur 404 personnalisé"""
+    # Utiliser directement datetime.now().year au lieu de config.CURRENT_YEAR
     return templates.TemplateResponse(
         "404.html", 
         {
             "request": request,
-            "current_year": config.CURRENT_YEAR
+            "current_year": datetime.now().year  # Solution simple et directe
         }, 
         status_code=404
     )

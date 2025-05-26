@@ -19,6 +19,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 class AuthService:
     def __init__(self):
         self.db = BroskiDatabaseService()
+        
+        
+    
+
     
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         """Verify password against hash"""
@@ -100,26 +104,41 @@ class AuthService:
     def verify_token(self, token: str) -> Optional[Dict[str, Any]]:
         """Vérifie et décode un token JWT"""
         try:
+            # Décoder le token
             payload = self.decode_token(token)
             if not payload:
+                print(f"Token invalide ou expiré: {token[:10]}...")
                 return None
             
+            # Extraire l'email (sub)
             email = payload.get("sub")
             if not email:
+                print("Token sans 'sub' (email)")
                 return None
             
+            # Récupérer l'utilisateur
             user = self.db.get_user_by_email(email)
             if not user:
+                print(f"Utilisateur avec email {email} non trouvé")
                 return None
             
             # Ajouter les informations du token
-            user["role"] = payload.get("role", user.get("role", "guest"))
+            user["role"] = payload.get("role", user.get("role", ""))
             user["is_admin"] = payload.get("is_admin", user.get("is_admin", False))
             
+            print(f"Utilisateur {email} authentifié avec succès via token")
             return user
         except Exception as e:
-            print(f"Error verifying token: {str(e)}")
+            print(f"Erreur lors de la vérification du token: {str(e)}")
             return None
+        
+    
+        
+        
+    
+        
+
+
 
 
 

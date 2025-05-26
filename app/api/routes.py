@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, Body
+from fastapi import APIRouter, Depends, Body, Request
 from typing import Dict, Any, Optional
 from app.services.ai_service import AIService
 from app.models.schemas import UserQuery
 from datetime import datetime
 import logging
-from app.core.dependencies import get_current_user
+from app.api.web_routes import get_current_user_or_none
 
 # Configuration du logging
 logger = logging.getLogger("app")
@@ -14,20 +14,30 @@ ai_service = AIService()
 
 @router.post("/chat")
 async def chat_api(
+    request: Request,
     question: str = Body(...),
     session_id: Optional[str] = Body(None),
-    context: Optional[Dict[str, Any]] = Body(None),
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    context: Optional[Dict[str, Any]] = Body(None)
 ):
     """API de chat pour poser une question à l'IA"""
     try:
+        # Récupérer l'utilisateur actuel
+        user = await get_current_user_or_none(request)
+        if not user:
+            return {
+                "success": False,
+                "error": "Authentication required",
+                "timestamp": datetime.now().isoformat(),
+                "session_id": session_id
+            }
+        
         # Préparer les données utilisateur avec UserQuery
         user_query = UserQuery(
             question=question,
-            user_id=current_user.get("id", 0),
-            name=current_user.get("name", "Anonymous"),
-            email=current_user.get("email", "anonymous@example.com"),
-            role=current_user.get("role", "guest")
+            user_id=user.get("id", 0),
+            name=user.get("name", ""),
+            email=user.get("email", ""),
+            role=user.get("role", "")
         )
         
         # Traiter la question

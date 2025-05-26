@@ -1,20 +1,50 @@
+# Framework web et serveur
 fastapi>=0.68.0,<0.116.0
 uvicorn>=0.15.0,<0.23.0
+gunicorn>=20.1.0,<21.0.0
+
+# Base de données
 psycopg2-binary>=2.9.3,<3.0.0
-requests>=2.27.1,<3.0.0
-pydantic>=1.8.0,<3.0.0
+sqlalchemy>=1.4.0,<2.0.0
+
+# Authentification et sécurité
 python-jose>=3.3.0,<4.0.0
+passlib>=1.7.4,<2.0.0
+bcrypt>=3.2.0,<4.0.0
+python-multipart>=0.0.5,<0.0.6
+
+# Traitement des données
+pydantic>=1.8.0,<3.0.0
+email-validator>=1.1.3,<2.0.0
+
+# Traitement du langage naturel
 spacy>=3.4.0,<4.0.0
-python-multipart>=0.0.5
-passlib>=1.7.4
-bcrypt>=3.2.0
-jinja2>=3.0.0
-python-dotenv>=0.19.0
-email-validator>=1.1.3
 
-# For development
-pytest>=7.0.0
-black>=22.1.0
-flake8>=4.0.1
+# Client HTTP
+requests>=2.27.1,<3.0.0
+httpx>=0.23.0,<0.25.0
 
-# py -m spacy download fr_core_news_md
+# Templates et rendu
+jinja2>=3.0.0,<4.0.0
+
+# Configuration
+python-dotenv>=0.19.0,<0.22.0
+
+# Utilitaires
+python-dateutil>=2.8.2,<3.0.0
+pytz>=2022.1,<2024.0
+
+# Logging
+loguru>=0.6.0,<0.7.0
+
+# Tests
+pytest>=7.0.0,<8.0.0
+pytest-asyncio>=0.18.0,<0.22.0
+
+# Outils de développement
+black>=22.1.0,<23.0.0
+flake8>=4.0.1,<5.0.0
+isort>=5.10.0,<6.0.0
+
+# Pour télécharger le modèle français de spaCy
+# Exécuter après l'installation : python -m spacy download fr_core_news_md

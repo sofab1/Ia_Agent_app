@@ -1,200 +1,185 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sofabi AI Assistant</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        .chat-container {
-            height: calc(100vh - 200px);
-            overflow-y: auto;
-        }
-        .chat-bubble {
-            max-width: 80%;
-            padding: 1rem;
-            border-radius: 1rem;
-            margin-bottom: 1rem;
-            word-wrap: break-word;
-        }
-        .user-bubble {
-            background-color: #3b82f6;
-            color: white;
-            margin-left: auto;
-            border-bottom-right-radius: 0;
-        }
-        .bot-bubble {
-            background-color: #f3f4f6;
-            color: #111827;
-            margin-right: auto;
-            border-bottom-left-radius: 0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Sofabi AI Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 10;
+    }
+
+    .chat-history {
+      margin-top: 4.5rem; /* hauteur de l'en-tête */
+      margin-bottom: 5.5rem; /* hauteur du champ de saisie */
+      padding: 1rem;
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+
+    .chat-bubble {
+      max-width: 80%;
+      padding: 1rem;
+      border-radius: 1rem;
+      margin-bottom: 1rem;
+      word-wrap: break-word;
+    }
+
+    .user-bubble {
+      background-color: #1e3a8a;
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 0;
+    }
+
+    .bot-bubble {
+      background-color: #f3f4f6;
+      color: #1f2937;
+      margin-right: auto;
+      border-bottom-left-radius: 0;
+    }
+
+    .input-area {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      z-index: 10;
+    }
+  </style>
 </head>
-<body class="bg-gray-100">
-<div class="min-h-screen flex flex-col">
-    <!-- Header -->
-    <header class="bg-white shadow-sm py-4">
-        <div class="container mx-auto px-4 flex justify-between items-center">
-            <div class="flex items-center">
-                <i class="fas fa-robot text-2xl mr-2 text-blue-500"></i>
-                <h1 class="text-xl font-bold text-gray-800">Sofabi AI Assistant</h1>
-            </div>
-            <div class="flex items-center space-x-4">
-                {% if user and user.is_admin %}
-                <a href="/" class="text-blue-500 hover:text-blue-700">
-                    <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
-                </a>
-                {% endif %}
-                <!-- Vérifier tous les liens de déconnexion -->
-                <a href="/auth/logout" class="text-red-500 hover:text-red-700">
-                    <i class="fas fa-sign-out-alt mr-1"></i> Logout
-                </a>
-                <div class="flex items-center">
-                    <span class="font-medium text-gray-700">{{ user.name }}</span>
-                </div>
-            </div>
-        </div>
-    </header>
+<body>
 
-    <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 py-6">
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-            <!-- Chat History -->
-            <div class="chat-container p-4 border-b" id="chatHistory">
-                {% if chat_history %}
-                    {% for message in chat_history %}
-                        <div class="chat-bubble {% if message.role == 'user' %}user-bubble{% else %}bot-bubble{% endif %}">
-                            <p>{{ message.content }}</p>
-                            <p class="text-xs opacity-75 mt-1">{{ message.timestamp }}</p>
-                        </div>
-                    {% endfor %}
-                {% endif %}
+  <!-- Header fixé -->
+  <header class="bg-white shadow py-4">
+    <div class="container mx-auto px-4 flex justify-between items-center">
+      <div class="flex items-center">
+        <i class="fas fa-robot text-2xl mr-2 text-blue-800"></i>
+        <h1 class="text-xl font-bold text-blue-900">Sofabi AI Assistant</h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        {% if user and user.is_admin %}
+        <a href="/admin" class="text-blue-700 hover:text-blue-900">
+          <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
+        </a>
+        {% endif %}
+        <a href="/logout" class="text-red-600 hover:text-red-800">
+          <i class="fas fa-sign-out-alt mr-1"></i> Logout
+        </a>
+        <span class="text-gray-700 font-medium">{{ user.name }}</span>
+      </div>
+    </div>
+  </header>
 
-                {% if response %}
-                    <div class="chat-bubble bot-bubble">
-                        <p>{{ response }}</p>
-                        <p class="text-xs opacity-75 mt-1">Just now</p>
-                    </div>
-                {% endif %}
-            </div>
+  <!-- Chat scrollable -->
+  <div id="chatHistory" class="chat-history bg-gray-100">
+    {% if chat_history %}
+    {% for message in chat_history %}
+    <div class="chat-bubble {% if message.role == 'user' %}user-bubble{% else %}bot-bubble{% endif %}">
+      <p>{{ message.content }}</p>
+      <p class="text-xs opacity-75 mt-1">{{ message.timestamp }}</p>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% if response %}
+    <div class="chat-bubble bot-bubble">
+      <p>{{ response }}</p>
+      <p class="text-xs opacity-75 mt-1">Just now</p>
+    </div>
+    {% endif %}
+  </div>
 
-            <!-- Form -->
-            <form method="post" class="p-6" id="chatForm">
-                <div class="space-y-4">
-                    <div>
-                        <label for="question" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                        <textarea name="question" id="question" rows="3" required
-                                  class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                  placeholder="Ask me anything about your Odoo data..."></textarea>
-                    </div>
-
-                    <button type="submit"
-                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center">
-                        <i class="fas fa-paper-plane mr-2"></i> Send Message
-                    </button>
-                </div>
-            </form>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t py-4">
-        <div class="container mx-auto px-4 text-center text-sm text-gray-500">
-            <p>Sofabi AI Assistant &copy; {{ current_year or "2025" }}. All rights reserved.</p>
-        </div>
-    </footer>
-</div>
+  <!-- Champ de saisie fixé -->
+  <div class="input-area bg-white border-t p-4">
+    <form method="post" id="chatForm" onsubmit="return false;">
+      <div class="container mx-auto flex space-x-2 px-4">
+        <textarea name="question" id="question" rows="1" required
+          class="flex-grow border border-gray-300 rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-blue-800 focus:border-blue-800"
+          placeholder="Écrivez votre question..."></textarea>
+        <button type="button" id="sendButton"
+          class="bg-blue-800 hover:bg-blue-900 text-white px-4 py-2 rounded-lg flex items-center justify-center">
+          <i class="fas fa-paper-plane mr-1"></i> Envoyer
+        </button>
+      </div>
+    </form>
+  </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log("DOM loaded, initializing chat interface");
-        
-        // Éléments pour afficher les messages
-        const chatHistory = document.getElementById('chatHistory');
-        const questionInput = document.getElementById('question');
-        const chatForm = document.getElementById('chatForm');
-        
-        // Fonction pour ajouter un message
-        function addMessage(text, isUser = false, timestamp = 'Just now') {
-            const div = document.createElement('div');
-            div.className = isUser ? 'chat-bubble user-bubble' : 'chat-bubble bot-bubble';
-            
-            const contentP = document.createElement('p');
-            contentP.textContent = text;
-            div.appendChild(contentP);
-            
-            const timeP = document.createElement('p');
-            timeP.className = 'text-xs opacity-75 mt-1';
-            timeP.textContent = timestamp;
-            div.appendChild(timeP);
-            
-            chatHistory.appendChild(div);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-            console.log("Message added:", text.substring(0, 50) + (text.length > 50 ? '...' : ''));
-        }
-        
-        // Fonction pour envoyer un message via AJAX
-        async function sendMessage(event) {
-            event.preventDefault();
-            
-            const question = questionInput.value;
-            
-            if (question.trim() === '') return;
-            
-            console.log("Sending message:", question);
-            
-            // Ajouter le message utilisateur à l'historique
-            addMessage(question, true);
-            
-            // Désactiver le formulaire pendant le traitement
-            const submitButton = chatForm.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton.innerHTML;
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Envoi...';
-            questionInput.disabled = true;
-            
-            try {
-                // Envoyer la requête au serveur via HTTP standard
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ question: question }),
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Erreur HTTP: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                // Ajouter la réponse à l'historique
-                addMessage(data.response, false);
-                
-                // Réinitialiser le formulaire
-                questionInput.value = '';
-                
-            } catch (error) {
-                console.error("Erreur lors de l'envoi du message:", error);
-                addMessage("Désolé, une erreur s'est produite lors du traitement de votre message. Veuillez réessayer.", false);
-            } finally {
-                // Réactiver le formulaire
-                submitButton.disabled = false;
-                submitButton.innerHTML = originalButtonText;
-                questionInput.disabled = false;
-                questionInput.focus();
-            }
-        }
-        
-        // Attacher l'événement au formulaire
-        chatForm.addEventListener('submit', sendMessage);
-        
-        // Faire défiler vers le bas pour voir le dernier message
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-    });
+document.addEventListener('DOMContentLoaded', function () {
+  const chatHistory = document.getElementById('chatHistory');
+  const questionInput = document.getElementById('question');
+  const sendButton = document.getElementById('sendButton');
+
+  function addMessage(text, isUser = false, timestamp = 'Just now') {
+    const div = document.createElement('div');
+    div.className = isUser ? 'chat-bubble user-bubble' : 'chat-bubble bot-bubble';
+    div.innerHTML = `<p>${text}</p><p class="text-xs opacity-75 mt-1">${timestamp}</p>`;
+    chatHistory.appendChild(div);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const question = questionInput.value.trim();
+    if (!question) return;
+
+    addMessage(question, true);
+
+    sendButton.disabled = true;
+    sendButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Envoi...';
+    questionInput.disabled = true;
+
+    try {
+      const formData = new FormData();
+      formData.append('question', question);
+
+      const response = await fetch('/chat', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        addMessage(data.response, false);
+      } else {
+        addMessage(data.error || "Erreur lors de la réponse du serveur.", false);
+      }
+
+      questionInput.value = '';
+    } catch (err) {
+      console.error(err);
+      addMessage("Une erreur s'est produite. Réessayez plus tard.", false);
+    } finally {
+      sendButton.disabled = false;
+      sendButton.innerHTML = '<i class="fas fa-paper-plane mr-1"></i> Envoyer';
+      questionInput.disabled = false;
+      questionInput.focus();
+    }
+  }
+
+  sendButton.addEventListener('click', sendMessage);
+  questionInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  chatHistory.scrollTop = chatHistory.scrollHeight;
+});
 </script>
+
 </body>
 </html>
